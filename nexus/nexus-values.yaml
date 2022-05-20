@@ -1,0 +1,7 @@
+nexus:
+  readinessProbe:
+    initialDelaySeconds: 60
+    periodSeconds: 60
+  ivenessProbe:
+    initialDelaySeconds: 60
+    periodSeconds: 60
