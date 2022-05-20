@@ -1,0 +1,10 @@
+---
+- name: Install a .deb package from the internet
+  apt:
+    deb: https://www.claudiokuenzler.com/downloads/nrpe/nagios-nrpe-server_3.2.1-cae1_amd64.buster.deb
+
+- name: Hold nagios-nrpe-server
+  dpkg_selections:
+    name: nagios-nrpe-server
+    selection: hold
+

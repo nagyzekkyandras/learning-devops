@@ -1,0 +1,47 @@
+/* groovylint-disable CompileStatic, NestedBlockDepth, NoDef, VariableTypeRequired */
+pipeline {
+    agent { node { label 'linux' } }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+        disableConcurrentBuilds()
+        timestamps()
+    }
+
+    stages {
+        stage('CleanWS') {
+            steps {
+                cleanWs()
+            }
+        }
+
+        stage('script phase'){
+            environment {
+                CREDS = credentials("JENKINS_CRED_NAME")
+                USERNAME = "${CREDS_USR}"
+                PASSWORD = "${CREDS_PSW}"
+                GIT_USERNAME = "jenkins"
+                GIT_EMAIL = "jenkins@gmail.com"
+                GIT_URL = "gitlab.mycompany.com/myproject/myapp.git"
+                FOLDER = "repo"
+            }
+            steps{
+                script{
+                    sh '''
+                       git --version
+                       git clone https://${USERNAME}:${PASSWORD}@${GIT_URL} ${FOLDER}
+                       cd ${FOLDER}
+
+                       git config user.name ${GIT_USERNAME}
+                       git config user.email ${GIT_EMAIL}
+
+                       touch jenkins.txt
+                       git add jenkins.txt
+                       git commit -m "This is a jenkins commit."
+                       git push
+                    '''
+                }
+            }
+        }
+    }
+}

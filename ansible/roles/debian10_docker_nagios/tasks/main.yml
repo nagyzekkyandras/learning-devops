@@ -1,0 +1,18 @@
+---
+- name: create nagios directory
+  file:
+    state: directory
+    path: /opt/nagios
+
+- name: Download my custom aliases
+  get_url:
+    url: https://raw.githubusercontent.com/NAndras95/docker/main/nagios/docker-compose.yml
+    dest: /opt/nagios/docker-compose.yml
+    mode: '0640'
+
+- name: Pull and start nagios
+  docker_compose:
+    project_src: /opt/nagios
+    files:
+      - docker-compose.yml
+    pull: yes

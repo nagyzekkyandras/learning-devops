@@ -1,0 +1,131 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: gogs-server
+  annotations:
+    description: Gogs server template
+objects:
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      app: gogs-server
+    name: gogs-server
+  spec:
+    replicas: 1
+    selector:
+      app: gogs-server
+      deploymentconfig: gogs-server
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Recreate
+    template:
+      metadata:
+        labels:
+          app: gogs-server
+          deploymentconfig: gogs-server
+      spec:
+        containers:
+          - image: ${IMAGE}
+            imagePullPolicy: Always
+            name: gogs-server
+            env:
+            - name: SOCAT_LINK
+              value: "true"
+            ports:
+              - containerPort: 22
+                protocol: TCP
+              - containerPort: 3000
+                protocol: TCP
+            resources: {}
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+            volumeMounts:
+            - mountPath: /data
+              name: gogs-server-datadir
+              subPath: datadir
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: gogs-server-datadir
+          persistentVolumeClaim:
+            claimName: gogs-server-pvc
+    test: false
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: gogs-server
+    name: gogs-server
+  spec:
+    ports:
+      - name: 22-tcp
+        port: 22
+        protocol: TCP
+        targetPort: 22
+      - name: 3000-tcp
+        port: 3000
+        protocol: TCP
+        targetPort: 3000
+    selector:
+      deploymentconfig: gogs-server
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    labels:
+      app: gogs-server
+    name: gogs-server
+  spec:
+    host: ${URL}
+    port:
+      targetPort: 3000-tcp
+    tls:
+      insecureEdgeTerminationPolicy: Redirect
+      termination: edge
+    to:
+      kind: Service
+      name: gogs-server
+      weight: 100
+    wildcardPolicy: None
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    labels:
+      app: gogs-server
+    name: gogs-server-pvc
+  spec:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: ${SIZE}
+parameters:
+  - name: URL
+    diplayName: URL
+    description: URL what you will be use in the browser
+    value: 
+    required: true
+  - name: IMAGE
+    diplayName: IMAGE
+    description: IMAGE jetbrains/teamcity-server docker image
+    value: gogs/gogs
+    required: true
+  - name: SIZE
+    diplayName: SIZE
+    description: SIZE your disk mounted on your home directory
+    value: 10Gi
+    required: true

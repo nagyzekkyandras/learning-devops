@@ -1,0 +1,25 @@
+---
+- name: Add VSCode Key
+  apt_key:
+    url: https://packages.microsoft.com/keys/microsoft.asc
+    state: present
+
+- name: Add Docker Repository
+  apt_repository:
+    repo: deb [arch=amd64,arm64,armhf] https://packages.microsoft.com/repos/code stable main
+    state: present
+
+- name: Update apt and install VSCode
+  apt: name={{ item }} state=latest update_cache=yes
+  loop: [ 'code' ]
+
+# TODO plugin install debug
+#- name: Download VSCode terminal plugin
+#  get_url:
+#    url: https://github.com/formulahendry/vscode-terminal/releases/download/0.0.10/terminal-0.0.10.vsix
+#    dest: /home/{{ username }}/.vscode/extensions/terminal-0.0.10.vsix
+#
+#- name: Install VSCode terminal plugin
+#  shell:
+#    cmd: code --install-extension terminal-0.0.10.vsix
+#    chdir: /home/{{ username }}/.vscode/extensions

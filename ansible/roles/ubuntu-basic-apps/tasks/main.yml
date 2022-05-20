@@ -1,0 +1,22 @@
+---
+- name: Install aptitude using apt
+  apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
+
+- name: Install required system packages
+  apt: name={{ item }} state=latest update_cache=yes
+  loop: [ 'sudo', 'lsb-release', 'htop', 'zip', 'unzip', 'curl', 'wget', 'traceroute', 'tcpdump', 'dnsutils', 'git', 'ansible', 'tree', 'unattended-upgrades', 'apt-transport-https', 'gnupg', 'ca-certificates', 'tmux', 'screen', 'keepassxc', 'remmina', 'etcd-client', 'vlc' ]
+
+- name: Download my custom aliases
+  get_url:
+    url: https://raw.githubusercontent.com/NAndras95/linux/main/00-aliases.sh
+    dest: /etc/profile.d/00-aliases.sh
+    mode: '0640'
+
+- name: Download tmux-cssh
+  get_url:
+    url: https://raw.githubusercontent.com/peikk0/tmux-cssh/master/tmux-cssh
+    dest: /usr/local/bin/tmux-cssh
+    mode: '0755'
+
+- name: git credentian global config
+  shell: git config --global credential.helper store

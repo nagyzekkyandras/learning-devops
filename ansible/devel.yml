@@ -1,0 +1,8 @@
+---
+- name: For Under Development Roles
+  hosts: localhost
+  gather_facts: true
+  become: true
+  tasks:
+  - import_role:
+      name: obs

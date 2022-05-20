@@ -1,0 +1,29 @@
+$hostname = "debian10.mydomain"
+$disksize = '40GB'
+$cpu = 2
+$ram = 4096
+$script = <<-SCRIPT
+sudo apt update
+sudo apt install snapd -y
+sudo snap install core
+sudo snap install microk8s --classic
+
+wget https://raw.githubusercontent.com/NAndras95/linux/main/00-aliases.sh -P /etc/profile.d/
+SCRIPT
+
+Vagrant.configure(2) do |config|
+    config.vm.provision "shell", inline: $script
+    config.vm.define "debian10" do |debian10|
+        debian10.vagrant.plugins = "vagrant-disksize"
+        debian10.disksize.size = $disksize
+        debian10.vm.box = "generic/debian10"
+        debian10.vm.hostname = $hostname
+        debian10.vm.network "public_network", bridge: "en0: Wi-Fi (AirPort)"
+        debian10.vm.provider "virtualbox" do |vm|
+            vm.name = $hostname
+            vm.gui = false
+            vm.memory = $ram
+            vm.cpus = $cpu
+        end
+    end
+end

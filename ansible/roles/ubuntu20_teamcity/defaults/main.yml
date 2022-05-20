@@ -1,0 +1,9 @@
+---
+java_version: "8u*"
+java_major_version: "8"
+
+db_user: "dbusername"
+db_name: "dbname"
+db_password: "dbpassword"
+
+teamcity_archive_version: "TeamCity-2021.2.tar.gz"

@@ -1,0 +1,32 @@
+---
+- name: Install Ubuntu Desktop
+  hosts: localhost
+  vars:
+    username: anagy
+  gather_facts: false
+  become: true
+  tasks:
+  - import_role:
+      name: ubuntu-basic-apps
+  - import_role:
+      name: clean-folders
+  - import_role:
+      name: docker
+  - import_role:
+      name: kubernetes-tools
+  - import_role:
+      name: vscode
+  - import_role:
+      name: chrome
+  - import_role:
+      name: notable
+  - import_role:
+      name: google-drive-sync
+  - import_role:
+      name: k3d
+  - import_role:
+      name: java-maven
+  - import_role:
+      name: virtualbox-vagrant-packer
+  - import_role:
+      name: obs

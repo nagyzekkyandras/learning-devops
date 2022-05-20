@@ -1,0 +1,41 @@
+---
+- name: Add kubectl GPG Key
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+- name: Add kubectl Repository
+  apt_repository:
+    repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+    state: present
+
+- name: Update apt and install kubectl
+  apt: name={{ item }} state=latest update_cache=yes
+  loop: [ 'kubectl' ]
+
+- name: Install kubens
+  get_url:
+    url: https://raw.githubusercontent.com/ahmetb/kubectx/master/kubens
+    dest: /usr/local/bin/kubens
+    mode: '0755'
+
+- name: Install kubectx
+  get_url:
+    url: https://raw.githubusercontent.com/ahmetb/kubectx/master/kubectx
+    dest: /usr/local/bin/kubectx
+    mode: '0755'
+
+- name: Add HELM Key
+  apt_key:
+    url: https://baltocdn.com/helm/signing.asc
+    state: present
+
+- name: Add HELM Repository
+  apt_repository:
+    repo: deb https://baltocdn.com/helm/stable/debian/ all main
+    state: present
+
+- name: Update apt and install HELM
+  apt: name={{ item }} state=latest update_cache=yes
+  loop: [ 'helm' ]
+

@@ -1,0 +1,23 @@
+---
+- name: Download teamcity application
+  get_url:
+    url: https://download.jetbrains.com/teamcity/{{ teamcity_archive_version }}
+    dest: /opt/{{ teamcity_archive_version }}
+    mode: '0755'
+
+- name: Extract {{ teamcity_archive_version }} into /opt/teamcity
+  shell: tar -xzf /opt/{{ teamcity_archive_version }} -C /opt
+
+- name: Copy teamcity script
+  template:
+    src: teamcity.j2
+    dest: /etc/init.d/teamcity
+    owner: root
+    group: root
+    mode: '0775'
+
+- name: update-rc
+  shell: update-rc.d teamcity defaults
+
+- name: start teamcity
+  shell: /etc/init.d/teamcity start

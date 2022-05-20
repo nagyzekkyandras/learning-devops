@@ -1,0 +1,99 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: echo-server
+  annotations:
+    description: Echo server template
+objects:
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      app: echo-server
+    name: echo-server
+  spec:
+    replicas: 1
+    selector:
+      app: echo-server
+      deploymentconfig: echo-server
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Recreate
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftWebConsole
+        creationTimestamp: null
+        labels:
+          app: echo-server
+          deploymentconfig: echo-server
+      spec:
+        containers:
+          - image: ${IMAGE}
+            imagePullPolicy: Always
+            name: echo-server
+            ports:
+              - containerPort: 80
+                protocol: TCP
+            resources: {}
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        terminationGracePeriodSeconds: 30
+    test: false
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: echo-server
+    name: echo-server
+  spec:
+    ports:
+      - name: 80-tcp
+        port: 80
+        protocol: TCP
+        targetPort: 8080
+    selector:
+      deploymentconfig: echo-server
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    labels:
+      app: echo-server
+    name: echo-server
+  spec:
+    host: ${URL}
+    port:
+      targetPort: 80-tcp
+    tls:
+      insecureEdgeTerminationPolicy: Redirect
+      termination: edge
+    to:
+      kind: Service
+      name: echo-server
+      weight: 100
+    wildcardPolicy: None
+parameters:
+  - name: URL
+    diplayName: URL
+    description: URL what you will be use in the browser
+    value: 
+    required: true
+  - name: IMAGE
+    diplayName: IMAGE
+    description: IMAGE your docker image
+    value: k8s.gcr.io/echoserver:1.10
+    required: true

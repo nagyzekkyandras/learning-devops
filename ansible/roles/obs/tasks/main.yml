@@ -1,0 +1,12 @@
+---
+- name: Install required system packages
+  apt: name={{ item }} state=latest update_cache=yes
+  loop: [ 'ffmpeg', 'v4l2loopback-dkms',  ]
+
+- name: Add OBS Repository
+  apt_repository:
+    repo: ppa:obsproject/obs-studio
+
+- name: Update apt and install obs-studio
+  apt: name={{ item }} state=latest update_cache=yes
+  loop: [ 'obs-studio' ]

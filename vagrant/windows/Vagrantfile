@@ -1,0 +1,15 @@
+Vagrant.configure(2) do |config|
+    config.vm.define "windows2012" do |windows2012|
+        windows2012.vagrant.plugins = "vagrant-disksize"
+        windows2012.disksize.size = '50GB'
+        windows2012.vm.box = "opentable/win-2012r2-standard-amd64-nocm"
+        windows2012.vm.hostname = "windows2012"
+        windows2012.vm.network "public_network", bridge: "en1: Wi-Fi (AirPort)"
+        windows2012.vm.provider "virtualbox" do |vm|
+            vm.name = "windows2012"
+            vm.gui = false
+            vm.memory = 4096
+            vm.cpus = 2
+        end
+    end
+end

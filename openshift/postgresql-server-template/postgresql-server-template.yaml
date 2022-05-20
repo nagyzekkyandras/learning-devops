@@ -1,0 +1,118 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: postgresql-server
+  annotations:
+    description: PostgreSQL database server
+objects:
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      app: ${NAME}-postgres
+    name: ${NAME}-postgres
+  spec:
+    replicas: 1
+    selector:
+      app: ${NAME}-postgres
+      deploymentconfig: ${NAME}-postgres
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Recreate
+    template:
+      metadata:
+        labels:
+          app: ${NAME}-postgres
+          deploymentconfig: ${NAME}-postgres
+      spec:
+        containers:
+          - env:
+              - name: POSTGRES_PASSWORD
+                value: ${PASSWORD}
+              - name: POSTGRES_DB
+                value: ${DB}
+            image: ${IMAGE}
+            imagePullPolicy: Always
+            name: ${NAME}-postgres
+            ports:
+              - containerPort: 5432
+                protocol: TCP
+            resources: {}
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+            volumeMounts:
+              - mountPath: /var/lib/postgresql/data
+                name: postgresql
+                subPath: data
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+          - name: postgresql
+            persistentVolumeClaim:
+              claimName: ${NAME}-postgres
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: ${NAME}-postgres
+    name: ${NAME}-postgres
+  spec:
+    ports:
+      - name: 5432-tcp
+        port: 5432
+        protocol: TCP
+        targetPort: 5432
+    selector:
+      deploymentconfig: ${NAME}-postgres
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    labels:
+      app: ${NAME}-postgres
+    name: ${NAME}-postgres
+  spec:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: ${SIZE}
+parameters:
+  - name: NAME
+    diplayName: NAME
+    description: NAME prefix
+    value: app
+    required: true
+  - name: DB
+    diplayName: DB
+    description: DB name
+    value: app
+    required: true
+  - name: PASSWORD
+    diplayName: PASSWORD
+    description: PASSWORD
+    value: 
+    required: true
+  - name: IMAGE
+    diplayName: IMAGE
+    description: IMAGE your docker image
+    value: postgres
+    required: true
+  - name: SIZE
+    diplayName: SIZE
+    description: SIZE your disk mounted on your home directory
+    value: 10Gi
+    required: true

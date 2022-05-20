@@ -1,0 +1,49 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: avideo-streamer-server
+  annotations:
+    description: Avideo streamer server template for sandbox environments
+objects:
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    name: avideo-streamer
+  spec:
+    lookupPolicy:
+      local: false
+- apiVersion: build.openshift.io/v1
+  kind: BuildConfig
+  metadata:
+    labels:
+      app: streamer
+    name: streamer
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: 'avideo-streamer:latest'
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      contextDir: /
+      git:
+        ref: ${GIT_BRANCH}
+        uri: >-
+          ${GIT_LINK}
+    strategy:
+      dockerStrategy: {}
+      type: Docker
+    triggers: []
+parameters:
+  - name: GIT_LINK
+    diplayName: GIT_LINK
+    description: git link
+    value: https://github.com/WWBN/AVideo.git
+    required: true
+  - name: GIT_BRANCH
+    diplayName: GIT_BRANCH
+    description: git branch
+    value: master
+    required: true

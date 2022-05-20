@@ -1,0 +1,18 @@
+---
+- name: Download and Install Notable
+  apt:
+    deb: https://github.com/notable/notable/releases/download/v1.8.4/notable_1.8.4_amd64.deb
+
+- name: Copy Notable default config
+  template: src=notable.json dest=/home/{{ username }}/.notable.json
+
+- name: Create Notable main directory if it does not exist
+  file:
+    path: /home/{{ username }}/Desktop/work/notable
+    state: directory
+    mode: '0755'
+
+- name: Notable Git checkout
+  git:
+    repo: '{{ notableGitRepo }}'
+    dest: /home/{{ username }}/Desktop/work/notable/notes

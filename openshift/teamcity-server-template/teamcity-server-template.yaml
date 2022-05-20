@@ -1,0 +1,129 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: tc-server
+  annotations:
+    description: TeamCity server template
+objects:
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      app: tc-server
+    name: tc-server
+  spec:
+    replicas: 1
+    selector:
+      app: tc-server
+      deploymentconfig: tc-server
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Recreate
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftWebConsole
+        creationTimestamp: null
+        labels:
+          app: tc-server
+          deploymentconfig: tc-server
+      spec:
+        containers:
+          - image: ${IMAGE}
+            imagePullPolicy: Always
+            name: tc-server
+            ports:
+              - containerPort: 8111
+                protocol: TCP
+            resources: {}
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+            volumeMounts:
+            - mountPath: /data/teamcity_server/datadir
+              name: tc-server-datadir
+              subPath: datadir
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 1000
+          runAsUser: 1000
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: tc-server-datadir
+          persistentVolumeClaim:
+            claimName: tc-server-pvc
+    test: false
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: tc-server
+    name: tc-server
+  spec:
+    type: NodePort
+    ports:
+      - port: 8111
+        nodePort: ${NODEPORT}
+        name: http
+    selector:
+      deploymentconfig: tc-server
+    sessionAffinity: None
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    labels:
+      app: tc-server
+    name: tc-server
+  spec:
+    host: ${URL}
+    port:
+      targetPort: 8111
+    tls:
+      insecureEdgeTerminationPolicy: Redirect
+      termination: edge
+    to:
+      kind: Service
+      name: tc-server
+      weight: 100
+    wildcardPolicy: None
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    labels:
+      app: tc-server
+    name: tc-server-pvc
+  spec:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: ${SIZE}
+parameters:
+  - name: URL
+    diplayName: URL
+    description: URL what you will be use in the browser
+    value: 
+    required: true
+  - name: NODEPORT
+    diplayName: NODEPORT
+    description: NODEPORT what you will be use with the agent
+    value: 
+    required: true
+  - name: IMAGE
+    diplayName: IMAGE
+    description: IMAGE jetbrains/teamcity-server docker image
+    value: jetbrains/teamcity-server
+    required: true
+  - name: SIZE
+    diplayName: SIZE
+    description: SIZE your disk mounted on your home directory
+    value: 10Gi
+    required: true

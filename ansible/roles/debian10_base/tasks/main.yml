@@ -1,0 +1,13 @@
+---
+- name: Install aptitude using apt
+  apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
+
+- name: Install required system packages
+  apt: name={{ item }} state=latest update_cache=yes
+  loop: [ 'sudo', 'lsb-release', 'htop', 'zip', 'unzip', 'curl', 'wget', 'traceroute', 'tcpdump', 'dnsutils' ]
+
+- name: Download my custom aliases
+  get_url:
+    url: https://raw.githubusercontent.com/NAndras95/linux/main/00-aliases.sh
+    dest: /etc/profile.d/00-aliases.sh
+    mode: '0640'

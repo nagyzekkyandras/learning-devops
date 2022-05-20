@@ -1,0 +1,46 @@
+ubuntu_release = "18.04"
+ubuntu_codenames = {"16.04" => "xenial", "18.04" => "bionic"}  # ...currently supported.
+ 
+vm_size = {"cpus" => 1, "memory" => 2048}
+ 
+vm_name1 = "k8s-master"
+vm_name2 = "k8s-node-01"
+vm_name3 = "k8s-node-02"
+ 
+Vagrant.configure(2) do |config|
+    config.vm.define "master" do |master|
+        master.vm.box = "ubuntu/#{ubuntu_codenames[ubuntu_release]}64"
+        master.vm.hostname = vm_name1
+        master.vm.network "public_network", bridge: "en1: Wi-Fi (AirPort)", ip: "192.168.0.17"
+        master.vm.provider "virtualbox" do |vm|
+            vm.name = vm_name1
+            vm.gui = false
+            vm.memory = vm_size["memory"]
+            vm.cpus = vm_size["cpus"]
+        end
+    end
+ 
+    config.vm.define "node1" do |node1|
+        node1.vm.box = "ubuntu/#{ubuntu_codenames[ubuntu_release]}64"
+        node1.vm.hostname = vm_name2
+        node1.vm.network "public_network", bridge: "en1: Wi-Fi (AirPort)", ip: "192.168.0.18"
+        node1.vm.provider "virtualbox" do |vm|
+            vm.name = vm_name2
+            vm.gui = false
+            vm.memory = vm_size["memory"]
+            vm.cpus = vm_size["cpus"]
+        end
+    end
+ 
+    config.vm.define "node2" do |node2|
+        node2.vm.box = "ubuntu/#{ubuntu_codenames[ubuntu_release]}64"
+        node2.vm.hostname = vm_name3
+        node2.vm.network "public_network", bridge: "en1: Wi-Fi (AirPort)", ip: "192.168.0.19"
+        node2.vm.provider "virtualbox" do |vm|
+            vm.name = vm_name3
+            vm.gui = false
+            vm.memory = vm_size["memory"]
+            vm.cpus = vm_size["cpus"]
+        end
+    end
+end

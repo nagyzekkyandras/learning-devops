@@ -1,0 +1,13 @@
+---
+- name: Find files in Downloads folder
+  find:
+    paths: /home/{{ username }}/Downloads
+    recurse: false
+    patterns: '*.csv, *.CSV, *.zip, *.tgz, *.ZIP, *.TGZ, *.iso, *.rpm, *.tar, *.tar.gz'
+  register: result
+
+- name: Remove files
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  with_items: "{{ result.files }}"

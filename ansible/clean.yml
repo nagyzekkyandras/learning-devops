@@ -1,0 +1,8 @@
+---
+- name: Clean Folders
+  hosts: localhost
+  gather_facts: false
+  become: true
+  tasks:
+  - import_role:
+      name: clean-folders

@@ -1,0 +1,9 @@
+---
+- name: Download k3d installer
+  get_url: 
+    url: https://raw.githubusercontent.com/rancher/k3d/main/install.sh
+    dest: /tmp/k3d-install.sh
+    mode: '0777'
+
+- name: Execute the k3d-install.sh
+  shell: /tmp/k3d-install.sh

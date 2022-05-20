@@ -1,0 +1,4 @@
+---
+- name: Update apt and install virtualbox, vagrant and packer
+  apt: name={{ item }} state=latest update_cache=yes
+  loop: [ 'virtualbox', 'vagrant', 'packer']

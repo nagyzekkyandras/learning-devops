@@ -1,0 +1,15 @@
+---
+- name: Update apt and install openjdk-8-jdk maven
+  apt: name={{ item }} state=latest update_cache=yes
+  loop: [ 'openjdk-8-jdk', 'maven']
+
+- name: check java version
+  shell: java -version 2>&1
+  register: javaversion
+
+- name: check mvn version
+  shell: mvn -version 2>&1
+  register: mvnversion
+
+- debug: msg="{{ javaversion.stdout }}"
+- debug: msg="{{ mvnversion.stdout }}"

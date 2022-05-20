@@ -1,0 +1,28 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          TeamCity autostart
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start teamcity daemon at boot time
+# Description:       Enable service provided by daemon.
+
+# /etc/init.d/teamcity -  startup script for teamcity
+### END INIT INFO
+
+#  Ensure you enter the  right  user name that  TeamCity will run  under
+USER="root"    ## CHANGE THIS USER NAME TO MATCH YOUR USERNAME
+
+case $1 in
+
+start)
+  start-stop-daemon --start  -c $USER --exec /opt/TeamCity/bin/teamcity-server.sh start
+
+ ;;
+stop)
+  start-stop-daemon --start -c $USER  --exec  /opt/TeamCity/bin/teamcity-server.sh stop
+ ;;
+ esac
+
+exit 0

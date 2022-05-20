@@ -1,0 +1,33 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: vscode-server
+  annotations:
+    description: VS Code in the browser coder.com
+objects:
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    labels:
+      app.kubernetes.io/instance: adminer
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: adminer
+    name: adminer-route
+  spec:
+    host: ${URL}
+    port:
+      targetPort: http
+    tls:
+      insecureEdgeTerminationPolicy: Redirect
+      termination: edge
+    to:
+      kind: Service
+      name: adminer
+      weight: 100
+    wildcardPolicy: None
+parameters:
+- name: URL
+  diplayName: URL
+  description: URL what you will be use in the browser
+  value: 
+  required: true

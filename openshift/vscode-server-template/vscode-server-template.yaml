@@ -1,0 +1,126 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: vscode-server
+  annotations:
+    description: VS Code in the browser coder.com
+objects:
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      app: vscode-server
+    name: vscode-server
+  spec:
+    replicas: 1
+    selector:
+      app: vscode-server
+      deploymentconfig: vscode-server
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Recreate
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftWebConsole
+        creationTimestamp: null
+        labels:
+          app: vscode-server
+          deploymentconfig: vscode-server
+      spec:
+        containers:
+          - image: ${IMAGE}
+            imagePullPolicy: Always
+            name: vscode-server
+            ports:
+              - containerPort: 8080
+                protocol: TCP
+            resources: {}
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+            volumeMounts:
+            - mountPath: /home/coder
+              name: vscode-server-home
+              subPath: coder
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 1000
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: vscode-server-home
+          persistentVolumeClaim:
+            claimName: vscode-server-pvc
+    test: false
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: vscode-server
+    name: vscode-server
+  spec:
+    ports:
+      - name: 8080-tcp
+        port: 8080
+        protocol: TCP
+        targetPort: 8080
+    selector:
+      deploymentconfig: vscode-server
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    labels:
+      app: vscode-server
+    name: vscode-server
+  spec:
+    host: ${URL}
+    port:
+      targetPort: 8080-tcp
+    tls:
+      insecureEdgeTerminationPolicy: Redirect
+      termination: edge
+    to:
+      kind: Service
+      name: vscode-server
+      weight: 100
+    wildcardPolicy: None
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    labels:
+      app: vscode-server
+    name: vscode-server-pvc
+  spec:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: ${SIZE}
+parameters:
+  - name: URL
+    diplayName: URL
+    description: URL what you will be use in the browser
+    value: 
+    required: true
+  - name: IMAGE
+    diplayName: IMAGE
+    description: IMAGE your docker image
+    value: codercom/code-server:3.9.3
+    required: true
+  - name: SIZE
+    diplayName: SIZE
+    description: SIZE your disk mounted on your home directory
+    value: 10Gi
+    required: true
