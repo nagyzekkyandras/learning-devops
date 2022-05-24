@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: empty-pv-claim
+spec:
+  storageClassName: nfs-client # ha commentelt akkor a defualt-t válassza ha a default be van állítva
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
