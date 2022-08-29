@@ -21,4 +21,4 @@ apt install ansible
 ```
 
 ## Examples
-[Ansible examples.](./examples/README.md.md)
+[Ansible examples.](./examples/README.md)
