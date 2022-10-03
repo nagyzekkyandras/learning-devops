@@ -63,8 +63,25 @@ wmi_logical_disk_size_bytes or up{job="windows"} == 0
 rate(process_cpu_seconds_total[5m]) unless process_resident_memory_bytes > 100 * (1024^2)
 rate(process_cpu_seconds_total[5m]) and process_resident_memory_bytes > 100 * (1024^2)
 
-# functions
+# date time
+time()
+hour()
+year()
+days_in_month()
+day_of_year()
 
+# sort
+sort(process_resident_memory_bytes)
+sort_desc(process_resident_memory_bytes)
+
+# rate
+rate(log_messages_total[5m])
+rate(log_messages_total[1h])
+rate(log_messages_total[1d])
+sum by(instance)(rate(container_cpu_usage_seconds_total{id=~"/kube.+"}[5m]))
+sum by(instance)(irate(container_cpu_usage_seconds_total{id=~"/kube.+"}[5m]))
+avg without(cpu)(irate(node_cpu_seconds_total[5m]))
+avg without(cpu)(irate(node_cpu_seconds_total{instance=~".+10.+"}[5m]))
 ```
 
 ## Prometheus API
